@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Site build files
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Node modules (if using any build tools)
+node_modules/
+
+# Backup files
+*.bak
+*.backup
