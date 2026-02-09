@@ -1,0 +1,23 @@
+RAG-Based Code Documentation Chatbot - Reflection & Observations
+
+I implemented a Retrieval-Augmented Generation (RAG) chatbot that answers documentation-based questions for Python, Java, and JavaScript. The system uses ChromaDB for vector storage and retrieval, POML for structured prompt orchestration, and multiple LLMs via Groq for answer generation and evaluation. All required TODOs across ingestion, routing, retrieval, prompting, and evaluation were completed, and the chatbot successfully produced grounded answers across all three programming languages without runtime errors.
+
+RAG Implementation (Chunking, Embedding, Retrieval)
+
+Documentation PDFs were split into manageable text chunks, embedded using the SentenceTransformer all-MiniLM-L6-v2 model, and stored in persistent ChromaDB collections. Retrieval generally surfaced relevant sections (e.g., list definitions, methods, and examples), though some adjacent but less-relevant chunks appeared for broad queries. This highlighted a key takeaway: chunk size and overlap directly impact retrieval precision, but even imperfect retrieval can still support accurate answers when multiple chunks are combined.
+
+Prompting with POML
+
+All three POML prompt files (route.poml, answer.poml, judge.poml) were fully implemented. POML enabled clean separation between prompt logic and application code, making it easy to switch between zero-shot, few-shot, chain-of-thought, and advanced prompting techniques without changing Python logic. The router prompt effectively classified questions by programming language and correctly requested clarification when the language was ambiguous, reducing hallucinations.
+
+Advanced Prompting Technique
+
+For the advanced technique, I used Ethical / Responsible Considerations (from Nir Diamant’s Prompt Engineering repository). This prompt encouraged the model to identify ambiguity, avoid unsupported assumptions, and explicitly note limitations or ask clarifying questions when needed. Compared to other techniques, it produced safer and more cautious responses, especially for edge cases or underspecified questions.
+
+Model Selection & LLM-as-a-Judge
+
+I compared multiple models (Qwen3 32B, Kimi K2, GPT-OSS 20B) using the same prompts and evaluated them with an LLM-as-a-Judge. The judge consistently favored answers that were more complete, clearly structured, and faithful to retrieved documentation, validating that model choice affects answer quality even when retrieval is constant.
+
+Overall Takeaway
+
+This project demonstrated that retrieval quality, prompting strategy, and model selection collectively determine chatbot performance. While RAG grounds answers in documentation, advanced prompting and strong models significantly improve clarity, completeness, and responsible usage. Screenshots of test conversations and model comparisons are included to support these observations.

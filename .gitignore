@@ -27,3 +27,7 @@ node_modules/
 # Backup files
 *.bak
 *.backup
+.env
+.env
+.env
+.env
