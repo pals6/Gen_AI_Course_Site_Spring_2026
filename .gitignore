@@ -29,3 +29,4 @@ node_modules/
 *.backup
 .env
 .env
+.env
