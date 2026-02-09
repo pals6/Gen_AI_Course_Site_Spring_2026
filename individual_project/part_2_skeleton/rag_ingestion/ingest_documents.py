@@ -9,7 +9,7 @@ from chromadb.utils import embedding_functions
 from PyPDF2 import PdfReader
 
 # TODO import your chosen text splitter
-from langchain_text_splitters import #TODO
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Initialize ChromaDB with persistent storage
 CHROMA_PATH = Path(__file__).parent / "chroma_db"
@@ -19,7 +19,7 @@ client = chromadb.PersistentClient(path=str(CHROMA_PATH))
 # TODO: Take a look at ChromaDBs embedding options on this page: https://docs.trychroma.com/docs/embeddings/embedding-functions
 # Find the default option and fill in the information here:
 embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="TODO"
+    model_name="all-MiniLM-L6-v2"
 )
 
 # PDF to collection mapping
@@ -31,7 +31,7 @@ PDF_COLLECTION_MAP = {
 
 # TODO Fill in the text splitter parameters
 # This page has further information langchain's text splitters: https://docs.langchain.com/oss/python/integrations/splitters
-text_splitter = ()
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -41,7 +41,9 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     for page_num, page in enumerate(reader.pages):
         page_text = page.extract_text()
         if page_text:
-            text += f"\n--- Page {page_num + 1} ---\n{page_text}"
+            # Setting errors="ignore" will ignore any invalid characters in the PDFs
+            clean_text = page_text.encode("utf-8", errors="ignore").decode("utf-8")
+            text += f"\n--- Page {page_num + 1} ---\n{clean_text}"
     return text
 
 
@@ -60,11 +62,16 @@ def process_pdf(pdf_path: str, collection_name: str):
     # Split into chunks
     print("  Splitting into chunks...")
     # TODO fill in the call to the text splitter  
-    chunks = TODO
+    chunks = text_splitter.split_text(text)
     print(f"  Created {len(chunks)} chunks")
 
     # Get or create collection (defaults to using L2 distance as metric for similarity search)
-    collection = TODO
+    collection = client.get_or_create_collection(name=collection_name,embedding_function=embedding_fn)
+
+    #Skip if already ingested
+    if collection.count() > 0:
+        print(f"  Collection '{collection_name}' already has {collection.count()} items. Skipping...")
+        return
 
     # Prepare data for ChromaDB
     ids = [f"{collection_name}_chunk_{i:04d}" for i in range(len(chunks))]
@@ -73,9 +80,9 @@ def process_pdf(pdf_path: str, collection_name: str):
     # Store in ChromaDB (embeddings are created automatically)
     print("  Creating embeddings and storing in ChromaDB...")
     collection.add(
-        documents=TODO,
-        ids=TODO,
-        metadatas=TODO
+        documents=chunks,
+        ids=ids,
+        metadatas=metadatas
     )
 
     print(f"  Stored {len(chunks)} chunks in '{collection_name}' collection")
@@ -96,7 +103,7 @@ def main():
             print(f"\nWarning: {pdf_path} not found, skipping...")
             continue
 
-        process_pdf(str(TODO), TODO)
+        process_pdf(str(pdf_path), collection_name)
 
     print("\n" + "=" * 50)
     print("Document ingestion complete!")
