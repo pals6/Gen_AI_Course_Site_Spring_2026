@@ -1,7 +1,6 @@
-# Part 2 Skeleton: RAG + POML Code Documentation Chatbot
+RAG + POML Code Documentation Chatbot
 
-This project is the Part 2 skeleton for the individual project in ITCS-5010.  
-It implements a Retrieval-Augmented Generation (RAG) chatbot that answers questions from Python, Java, and JavaScript documentation PDFs.
+This project implements a Retrieval-Augmented Generation (RAG) chatbot that answers questions from Python, Java, and JavaScript documentation PDFs.
 It integrates Groq LLM APIs via LangChain (`ChatGroq`) in a custom orchestration pipeline for contextual response generation and LLM-as-a-judge evaluation.
 
 ## What This Project Does
